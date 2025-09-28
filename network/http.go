@@ -49,8 +49,6 @@ func Request(method string, url string) error {
 
 /* ========================================================
 
-Got it! Here's the minimal syntax:
-
 ```go
 // Basic request
 req, err := http.NewRequest("GET", "https://example.com", nil)
@@ -76,7 +74,5 @@ req.Header.Set("Authorization", "Bearer token")
 bodyBytes, err := io.ReadAll(resp.Body)
 bodyString := string(bodyBytes)
 ```
-
-That's it - the core syntax for making requests in Go.
 
 ======================================================== */

@@ -9,6 +9,26 @@ import (
 	"zap/utils/terminal"
 )
 
+//  ========================================================================================
+//
+//      $$$$$$$$\ $$$$$$\   $$$$$$\
+//      \____$$  |\____$$\ $$  __$$\
+//        $$$$ _/ $$$$$$$ |$$ /  $$ |
+//       $$  _/  $$  __$$ |$$ |  $$ |
+//      $$$$$$$$\\$$$$$$$ |$$$$$$$  |
+//      \________|\_______|$$  ____/
+//                         $$ |
+//                         $$ |
+//                         \__|
+//
+//        ⚡Version 1.0 ⚡
+//
+// Description: A high-performance API testing tool and `curl` replacement built for speed and simplicity.
+// Issues & Contributions: https://github.com/kinxyo/zap
+// Contact: Kinjalk Tripathi (amblers26.splay@icloud.com)
+//
+//  ========================================================================================
+
 func main() {
 	args_r := os.Args[1:]
 

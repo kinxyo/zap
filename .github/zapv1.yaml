@@ -1,0 +1,281 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  GO_VERSION: '1.21'
+  APP_NAME: 'zap'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Verify dependencies
+      run: go mod verify
+
+    - name: Format check
+      run: |
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "Code is not formatted properly:"
+          gofmt -s -l .
+          exit 1
+        fi
+
+    - name: Vet code
+      run: go vet ./...
+
+    - name: Run tests
+      run: go test -v -race -coverprofile=coverage.out ./...
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        args: --timeout=5m
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [ test, lint ]
+    
+    strategy:
+      matrix:
+        goos: [ linux, darwin, windows ]
+        goarch: [ amd64, arm64 ]
+        exclude:
+          # Exclude unsupported combinations if any
+          - goos: windows
+            goarch: arm64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Build binary
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        mkdir -p bin
+        if [ "$GOOS" = "windows" ]; then
+          BINARY_NAME="${APP_NAME}-${GOOS}-${GOARCH}.exe"
+        else
+          BINARY_NAME="${APP_NAME}-${GOOS}-${GOARCH}"
+        fi
+        
+        go build -trimpath -ldflags="-s -w -X main.version=${GITHUB_REF_NAME:-dev}" \
+          -o "bin/${BINARY_NAME}" main.go
+        
+        # Create archive
+        cd bin
+        if [ "$GOOS" = "windows" ]; then
+          zip "${APP_NAME}-${GOOS}-${GOARCH}.zip" "${BINARY_NAME}"
+        else
+          tar -czf "${APP_NAME}-${GOOS}-${GOARCH}.tar.gz" "${BINARY_NAME}"
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.APP_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: |
+          bin/${{ env.APP_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}*
+        retention-days: 30
+
+  benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Install hyperfine
+      run: |
+        wget https://github.com/sharkdp/hyperfine/releases/download/v1.18.0/hyperfine_1.18.0_amd64.deb
+        sudo dpkg -i hyperfine_1.18.0_amd64.deb
+
+    - name: Build application
+      run: go build -trimpath -ldflags="-s -w" -o zap main.go
+
+    - name: Start test server
+      run: |
+        # Simple HTTP server for testing
+        python3 -m http.server 8000 &
+        SERVER_PID=$!
+        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+        sleep 2
+
+    - name: Run benchmark
+      run: |
+        echo "## Performance Benchmark Results" >> benchmark_results.md
+        echo "" >> benchmark_results.md
+        echo "### Local Server Performance" >> benchmark_results.md
+        echo "\`\`\`" >> benchmark_results.md
+        timeout 60s hyperfine -N './zap /' 'curl -s localhost:8000' --export-markdown temp_local.md || true
+        if [ -f temp_local.md ]; then
+          tail -n +3 temp_local.md >> benchmark_results.md
+        else
+          echo "Local benchmark failed or timed out" >> benchmark_results.md
+        fi
+        echo "\`\`\`" >> benchmark_results.md
+        echo "" >> benchmark_results.md
+        
+        echo "### Remote API Performance" >> benchmark_results.md
+        echo "\`\`\`" >> benchmark_results.md
+        timeout 60s hyperfine './zap httpbin.org/json' 'curl -s https://httpbin.org/json' --export-markdown temp_remote.md || true
+        if [ -f temp_remote.md ]; then
+          tail -n +3 temp_remote.md >> benchmark_results.md
+        else
+          echo "Remote benchmark failed or timed out" >> benchmark_results.md
+        fi
+        echo "\`\`\`" >> benchmark_results.md
+
+    - name: Cleanup test server
+      if: always()
+      run: |
+        if [ ! -z "$SERVER_PID" ]; then
+          kill $SERVER_PID || true
+        fi
+
+    - name: Comment PR with benchmark results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let benchmarkResults = '';
+          try {
+            benchmarkResults = fs.readFileSync('benchmark_results.md', 'utf8');
+          } catch (error) {
+            benchmarkResults = 'Benchmark results could not be generated.';
+          }
+          
+          const comment = `
+          ## 🚀 Performance Benchmark Results
+          
+          ${benchmarkResults}
+          
+          *Benchmarks run automatically on each PR*
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results
+        path: benchmark_results.md
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    if: github.event_name == 'release'
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          */zap-*
+        generate_release_notes: true
+        draft: false
+        prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
