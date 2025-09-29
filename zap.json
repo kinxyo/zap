@@ -1,0 +1,20 @@
+{
+  "name": "Example",
+  "port": 8000,
+  "auth": {
+    "Authorization": "Bearer xxx"
+  },
+  "apis": [
+    {
+      "path": "GET /",
+      "protected": false,
+      "headers": {
+        "Content-Type": "text/plain"
+      }
+    },
+    {
+      "path": "POST /api/users",
+      "protected": true
+    }
+  ]
+}

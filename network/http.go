@@ -4,11 +4,16 @@ import (
 	"io"
 	"net/http"
 	"strings"
-	"zap/utils/terminal"
+	"zap/pkg/terminal"
 )
 
+type Header map[string]string
+
 func Method(m string) string {
-	switch strings.TrimSpace(m) {
+	lowercase := strings.ToLower(m)
+	method := strings.TrimSpace(lowercase)
+
+	switch method {
 	case "get":
 		return "GET"
 	case "post":
@@ -24,10 +29,15 @@ func Method(m string) string {
 	}
 }
 
-func Request(method string, url string) error {
+func Request(method string, url string, headers Header) error {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return err
+	}
+
+	for key, value := range headers {
+		terminal.PrintLn("Setting", key, value)
+		req.Header.Set(key, value)
 	}
 
 	client := &http.Client{}
@@ -42,8 +52,8 @@ func Request(method string, url string) error {
 		return err
 	}
 
-	terminal.Print("Response:", string(body))
-
+	terminal.PrintLn(resp.Status)
+	terminal.PrintJSON(body)
 	return nil
 }
 

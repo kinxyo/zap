@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"zap/network"
-	"zap/utils/terminal"
+	"zap/pkg/terminal"
 )
 
 type Args struct {

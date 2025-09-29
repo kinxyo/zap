@@ -1,11 +1,14 @@
 package args
 
-import "zap/network"
+import (
+	"zap/network"
+	"zap/pkg/terminal"
+)
 
-func Run(args_raw []string, dev *bool) {
-	args := New(args_raw, dev)
+func Run(args_raw []string, flags *terminal.ArgFlags) {
+	args := New(args_raw, flags.Dev)
 
 	url := args.URL()
 
-	network.Request(args.Method, url)
+	network.Request(args.Method, url, nil)
 }

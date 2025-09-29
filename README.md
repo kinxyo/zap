@@ -1,6 +1,9 @@
+> [!NOTE]
+> Not Ready. Haven't reached v1.
+
 # Zap ⚡
 
-A high-performance API testing tool and `curl` replacement built for speed and simplicity.
+Terminal-native API testing tool for developers who live in the command line.
 
 ## Features
 
@@ -34,8 +37,9 @@ zap run
 ## Installation
 
 ```bash
-make build
-./zap --help
+make install
+export PATH="$HOME/bin:$PATH"
+zap --help
 ```
 
 ## Configuration
@@ -102,43 +106,19 @@ zap example.com/api      # → https://example.com/api
 zap -d example.com/api   # → http://example.com/api
 ```
 
-## Performance
-
-Zap consistently outperforms traditional tools:
-
-### Local Development (localhost:8000)
-```
-Benchmark 1: zap /
-  Time (mean ± σ):     389.0 µs ± 89.2 µs
-  Range (min … max):   256.0 µs … 1133.6 µs
-
-Benchmark 2: curl -s localhost:8000  
-  Time (mean ± σ):       3.2 ms ± 0.4 ms
-  Range (min … max):     2.4 ms … 4.6 ms
-
-Summary: zap ran 8.35 ± 2.23 times faster than curl
-```
-
-### Remote APIs (httpbin.org)
-```
-Benchmark 1: zap httpbin.org/json
-  Time (mean ± σ):     750.3 ms ± 300.9 ms
-
-Benchmark 2: curl -s httpbin.org/json
-  Time (mean ± σ):     801.7 ms ± 191.6 ms  
-
-Summary: zap ran 1.07 ± 0.50 times faster than curl
-```
-
 *Benchmarks run with hyperfine on local hardware*
 
 ## Why Zap?
 
-- **Faster than curl** for development workflows
-- **Better UX** than Postman for simple API testing  
-- **Lighter than HTTPie** while maintaining ease of use
-- **Configuration management** built-in
+- **Stay in your workflow** - No context switching to Postman
+- **Git-friendly configs** - Version control your API collections
+- **Automation-ready** - Script and test APIs without leaving the terminal
+- **Fast and lightweight** - No Electron bloat
+- **Privacy-first** - Your data stays local
 - **TUI interface** for interactive testing
+
+Perfect for Vim/Neovim/Helix users, tmux workflows, and anyone
+tired of bloated GUI tools.
 
 ## Development
 
@@ -154,4 +134,3 @@ make test
 # Development mode
 go run . <args>
 ```
-
