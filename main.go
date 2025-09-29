@@ -1,12 +1,10 @@
 package main
 
 import (
-	"flag"
-	"os"
 	"zap/modes/args"
 	"zap/modes/config"
 	"zap/modes/tui"
-	"zap/utils/terminal"
+	"zap/pkg/terminal"
 )
 
 //  ========================================================================================
@@ -21,7 +19,7 @@ import (
 //                         $$ |
 //                         \__|
 //
-//        ⚡Version 1.0 ⚡
+//        ⚡Version 0.2 ⚡
 //
 // Description: A high-performance API testing tool and `curl` replacement built for speed and simplicity.
 // Issues & Contributions: https://github.com/kinxyo/zap
@@ -30,22 +28,20 @@ import (
 //  ========================================================================================
 
 func main() {
-	args_r := os.Args[1:]
-
-	dev := flag.Bool("dev", false, "Dev flag")
-
-	flag.Parse()
+	flags := terminal.LoadFlags()
+	args_r := terminal.LoadArgs()
 
 	if len(args_r) <= 0 {
-		terminal.Fatal("No args provided.")
+		terminal.Err("No args provided.")
+		return
 	}
 
 	switch args_r[0] {
 	case "tui":
 		tui.Run()
 	case "run":
-		config.Run()
+		config.Run(flags.Config)
 	default:
-		args.Run(args_r, dev)
+		args.Run(args_r, flags.Args)
 	}
 }
