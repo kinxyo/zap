@@ -5,17 +5,18 @@
 
 Terminal-native API testing tool for developers who live in the command line.
 
-## Features
+## Why Zap?
 
-- **Lightning fast** - Outperforms curl by 5-8x on localhost requests
-- **Simple CLI interface** - Intuitive command structure for quick testing  
-- **TUI mode** - Interactive interface for managing and organizing API collections
-- **Configuration-driven** - Save and reuse API definitions with JSON config
-- **Smart URL handling** - Automatic localhost detection and HTTPS/HTTP switching
+- **Stay in your workflow** - No context switching to Postman
+- **Git-friendly configs** - Version control your API collections
+- **Automation-ready** - Script and test APIs without leaving the terminal
+- **Fast and lightweight** - No Electron bloat
+- **Privacy-first** - Your data stays local
+- **TUI interface** for interactive testing
 
-*Future roadmap: ping utilities, domain verification, SSL certificate management*
+Perfect for Helix/Vim/Neovim users, tmux workflows, and anyone tired of bloated GUI tools.
 
-## Quick Start
+## Usage
 
 ```bash
 # Simple GET request
@@ -48,28 +49,26 @@ Create a `config.json` to define reusable API collections:
 
 ```json
 {
-  "name": "My API Project",
+  "name": "Example",
   "port": 8000,
-  "token": "your-auth-token",
+  "auth": {
+    "Authorization": "Bearer xxx"
+  },
   "apis": [
     {
       "path": "GET /",
-      "protected": false
-    },
-    {
-      "path": "GET /api/users", 
-      "protected": false
+      "protected": false,
+      "headers": {
+        "Content-Type": "text/plain"
+      }
     },
     {
       "path": "POST /api/users",
-      "protected": true,
-      "body": {
-        "name": "John Doe",
-        "email": "john@example.com"
-      }
+      "protected": true
     }
   ]
 }
+
 ```
 
 ## Usage Modes
@@ -94,31 +93,17 @@ zap tui
 ```bash
 zap run
 ```
-Loads and runs APIs from `config.json`
+Loads and runs APIs from `zap.json`
 
 ## URL Resolution
 
-Zap intelligently handles different URL formats:
+Zap handles different URL formats:
 
 ```bash
 zap /api/users           # → http://localhost:8000/api/users
 zap example.com/api      # → https://example.com/api  
 zap -d example.com/api   # → http://example.com/api
 ```
-
-*Benchmarks run with hyperfine on local hardware*
-
-## Why Zap?
-
-- **Stay in your workflow** - No context switching to Postman
-- **Git-friendly configs** - Version control your API collections
-- **Automation-ready** - Script and test APIs without leaving the terminal
-- **Fast and lightweight** - No Electron bloat
-- **Privacy-first** - Your data stays local
-- **TUI interface** for interactive testing
-
-Perfect for Vim/Neovim/Helix users, tmux workflows, and anyone
-tired of bloated GUI tools.
 
 ## Development
 

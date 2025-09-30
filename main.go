@@ -1,7 +1,7 @@
 package main
 
 import (
-	"zap/modes/args"
+	"zap/modes/cli"
 	"zap/modes/config"
 	"zap/modes/tui"
 	"zap/pkg/terminal"
@@ -29,19 +29,19 @@ import (
 
 func main() {
 	flags := terminal.LoadFlags()
-	args_r := terminal.LoadArgs()
+	args := terminal.LoadArgs()
 
-	if len(args_r) <= 0 {
+	if len(args) <= 0 {
 		terminal.Err("No args provided.")
 		return
 	}
 
-	switch args_r[0] {
+	switch args[0] {
 	case "tui":
 		tui.Run()
 	case "run":
 		config.Run(flags.Config)
 	default:
-		args.Run(args_r, flags.Args)
+		cli.Run(args, flags.Args)
 	}
 }
