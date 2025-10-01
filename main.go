@@ -40,7 +40,7 @@ func main() {
 	case "tui":
 		tui.Run()
 	case "run":
-		config.Run(flags.Config)
+		config.Run(args, flags.Config)
 	default:
 		cli.Run(args, flags.Args)
 	}

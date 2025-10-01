@@ -30,10 +30,10 @@ type Prepare struct {
 	Headers network.Header
 }
 
-func loadConfig(z *Config, verbose bool) {
-	contents, err := os.ReadFile(CONFIG_NAME)
+func loadConfig(z *Config, verbose bool, name string) error {
+	contents, err := os.ReadFile(name)
 	if err != nil {
-		terminal.Fatal(err)
+		return err
 	}
 
 	if verbose {
@@ -44,8 +44,10 @@ func loadConfig(z *Config, verbose bool) {
 
 	err = json.Unmarshal(contents, &z)
 	if err != nil {
-		terminal.Fatal(err)
+		return err
 	}
+
+	return nil
 }
 
 func makeURL(p *Prepare, HOST string, port uint16, api string) {

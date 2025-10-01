@@ -10,5 +10,5 @@ func Run(args_raw []string, flags *terminal.ArgFlags) {
 
 	url := args.URL()
 
-	network.Request(args.Method, url, nil)
+	network.Request(args.Method, url, nil, nil)
 }
