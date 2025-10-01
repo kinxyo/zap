@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"zap/pkg/terminal"
 )
 
@@ -29,32 +30,50 @@ func Method(m string) string {
 	}
 }
 
-func Request(method string, url string, headers Header) error {
+func Request_CONCURRENT(c *sync.WaitGroup, method string, url string, headers Header) {
+	defer c.Done()
+
+	Request(method, url, headers)
+}
+
+func Request(method string, url string, headers Header) {
+
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		return err
+		terminal.Err(err)
+		return
 	}
 
 	for key, value := range headers {
-		terminal.PrintLn("Setting", key, value)
 		req.Header.Set(key, value)
 	}
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		terminal.Err(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		terminal.Err(err)
+		return
 	}
 
-	terminal.PrintLn(resp.Status)
+	printBody(method, url, resp.Status, body)
+}
+
+var mut sync.Mutex
+
+func printBody(method string, url string, status string, body []byte) {
+	mut.Lock()
+	defer mut.Unlock()
+
+	terminal.PrintLn(method, url)
+	terminal.PrintLn(status)
 	terminal.PrintJSON(body)
-	return nil
 }
 
 /* ========================================================

@@ -1,20 +1,30 @@
 {
-  "name": "Example",
-  "port": 8000,
-  "auth": {
-    "Authorization": "Bearer xxx"
-  },
+  "name": "API Benchmark Test",
+  "port": 443,
+  "auth": null,
   "apis": [
     {
-      "path": "GET /",
+      "path": "GET https://jsonplaceholder.typicode.com/posts/1",
+      "protected": false
+    },
+    {
+      "path": "GET https://httpbin.org/json",
+      "protected": false
+    },
+    {
+      "path": "GET https://api.github.com/zen",
       "protected": false,
       "headers": {
         "Content-Type": "text/plain"
       }
     },
     {
-      "path": "POST /api/users",
-      "protected": true
+      "path": "GET https://jsonplaceholder.typicode.com/users",
+      "protected": false
+    },
+    {
+      "path": "GET https://dog.ceo/api/breeds/image/random",
+      "protected": false
     }
   ]
 }
