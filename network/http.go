@@ -1,6 +1,7 @@
 package network
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -33,11 +34,11 @@ func Method(m string) string {
 func Request_CONCURRENT(c *sync.WaitGroup, method string, url string, headers Header) {
 	defer c.Done()
 
-	Request(method, url, headers)
+	// var mut sync.Mutex
+	Request(method, url, headers, nil)
 }
 
-func Request(method string, url string, headers Header) {
-
+func Request(method string, url string, headers Header, mut *sync.Mutex) {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		terminal.Err(err)
@@ -62,18 +63,17 @@ func Request(method string, url string, headers Header) {
 		return
 	}
 
-	printBody(method, url, resp.Status, body)
+	printBody(mut, method, url, resp.Status, body)
 }
 
-var mut sync.Mutex
+func printBody(mut *sync.Mutex, method string, url string, status string, body []byte) {
+	if mut != nil {
+		mut.Lock()
+		defer mut.Unlock()
+	}
 
-func printBody(method string, url string, status string, body []byte) {
-	mut.Lock()
-	defer mut.Unlock()
-
-	terminal.PrintLn(method, url)
-	terminal.PrintLn(status)
-	terminal.PrintJSON(body)
+	logString := fmt.Sprintf("%s %s\n%s\n%s", method, url, status, terminal.PrettyJSON(body))
+	terminal.PrintLn(logString)
 }
 
 /* ========================================================

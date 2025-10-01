@@ -38,3 +38,14 @@ func PrintJSON(body []byte) {
 
 	PrintLn(prettyJSON.String())
 }
+
+func PrettyJSON(body []byte) string {
+	var prettyJSON bytes.Buffer
+
+	err := json.Indent(&prettyJSON, body, "", "  ")
+	if err != nil {
+		PrintLn(string(body))
+	}
+
+	return prettyJSON.String()
+}

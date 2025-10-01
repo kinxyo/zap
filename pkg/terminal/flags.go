@@ -9,7 +9,8 @@ type ArgFlags struct {
 }
 
 type ConfigFlags struct {
-	Verbose *bool
+	Verbose  *bool
+	ForceSeq *bool
 }
 
 type TUIFlags struct{}
@@ -29,7 +30,8 @@ func LoadFlags() *ZapFlags {
 
 	//Flags (CONFIG)
 	CF := &ConfigFlags{
-		Verbose: flag.Bool("v", false, "verbose"),
+		Verbose:  flag.Bool("v", false, "verbose"),
+		ForceSeq: flag.Bool("fs", false, "force to run sequentially"),
 	}
 
 	//Flags (TUI)
