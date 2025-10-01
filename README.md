@@ -1,6 +1,3 @@
-> [!NOTE]
-> Not Ready. Haven't reached v1.
-
 # Zap ⚡
 
 Terminal-native API testing tool for developers who live in the command line.
