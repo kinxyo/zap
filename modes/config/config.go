@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -50,14 +51,21 @@ func loadConfig(z *Config, verbose bool) {
 func makeURL(p *Prepare, HOST string, port uint16, api string) {
 	var api_substrings []string = strings.SplitN(api, " ", 2)
 
-	p.Method = network.Method(api_substrings[0])
+	raw_method := api_substrings[0]
+	raw_path := api_substrings[1]
+
+	p.Method = network.Method(raw_method)
 
 	if p.Method == network.INVALID_METHOD {
 		terminal.Err("Invalid method for API:", api)
 		p.Method = "GET"
 	}
 
-	p.URL = fmt.Sprintf("http://%s:%d%s", HOST, port, api_substrings[1])
+	if strings.HasPrefix(raw_path, "/") {
+		p.URL = fmt.Sprintf("http://%s:%d%s", HOST, port, raw_path)
+	} else {
+		p.URL = raw_path
+	}
 }
 
 func makeHeaders(p *Prepare, auth *network.Header, headers *network.Header) {
@@ -66,15 +74,11 @@ func makeHeaders(p *Prepare, auth *network.Header, headers *network.Header) {
 	}
 
 	if auth != nil {
-		for k, v := range *auth {
-			p.Headers[k] = v
-		}
+		maps.Copy(p.Headers, *auth)
 	}
 
 	if headers != nil {
-		for k, v := range *headers {
-			p.Headers[k] = v
-		}
+		maps.Copy(p.Headers, *headers)
 	}
 
 	if p.Headers["Content-Type"] == "" {

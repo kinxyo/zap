@@ -1,6 +1,7 @@
 package config
 
 import (
+	"sync"
 	"zap/network"
 	"zap/pkg/terminal"
 )
@@ -13,6 +14,8 @@ const (
 func Run(flags *terminal.ConfigFlags) {
 	terminal.Clear()
 
+	var counter sync.WaitGroup
+
 	var z Config
 	loadConfig(&z, *flags.Verbose)
 
@@ -22,12 +25,9 @@ func Run(flags *terminal.ConfigFlags) {
 		makeURL(&p, HOST, z.Port, api.Path)
 		makeHeaders(&p, z.Auth, api.Headers)
 
-		terminal.PrintLn(p.Method, p.URL)
-		err := network.Request(p.Method, p.URL, p.Headers)
-
-		if err != nil {
-			terminal.Fatal(err)
-		}
+		counter.Add(1)
+		go network.Request_CONCURRENT(&counter, p.Method, p.URL, p.Headers)
 	}
 
+	counter.Wait()
 }

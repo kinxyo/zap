@@ -19,7 +19,7 @@ import (
 //                         $$ |
 //                         \__|
 //
-//        ⚡Version 0.2 ⚡
+//        ⚡Version 0.3 ⚡
 //
 // Description: A high-performance API testing tool and `curl` replacement built for speed and simplicity.
 // Issues & Contributions: https://github.com/kinxyo/zap

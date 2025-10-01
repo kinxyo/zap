@@ -16,6 +16,55 @@ Terminal-native API testing tool for developers who live in the command line.
 
 Perfect for Helix/Vim/Neovim users, tmux workflows, and anyone tired of bloated GUI tools.
 
+# Roadmap
+
+## Done ✅
+- Concurrent requests
+- Custom headers
+- Authentication support
+- JSON response formatting
+- Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE)
+- Config-based API collections
+
+## Missing ❌
+
+### Critical:
+1. **Request bodies** - Can't send POST/PUT/PATCH data
+2. **Response headers display** - Only showing status code
+3. **Error details** - Need better error messages
+4. **Query parameters** - No easy way to add `?key=value`
+5. **Different auth types** - Only supports Bearer tokens (no Basic Auth, API keys, etc.)
+6. **File uploads** - Can't send files
+7. **Timeout configuration** - No way to set request timeouts
+8. **Follow redirects** - Might not handle 3xx properly
+9. **Certificate options** - No way to handle self-signed certs or skip TLS verification
+
+### Nice to have:
+- Download files (save response to disk)
+- Progress indicators for large requests
+- Cookie handling
+- Proxy support
+- HTTP/2 support configuration
+- Verbose mode (show full request/response)
+
+## Essential for API testing
+
+1. **Assertions/Validation** - Can't check if response matches expectations
+2. **Test scripts** - No pre-request or post-request scripts
+3. **Environment variables** - Can't swap between dev/staging/prod
+4. **Response time metrics** - Not measuring/displaying latency
+5. **Status code validation** - Not failing on non-200 responses
+6. **Response body tests** - Can't validate JSON schema or specific fields
+7. **Test reports** - No summary of pass/fail
+
+## Current use case:
+
+Right now it's good for:
+- ✅ Quick smoke testing multiple endpoints
+- ✅ Checking if APIs are responding
+- ✅ Basic authentication testing
+- ✅ Viewing JSON responses
+
 ## Usage
 
 ```bash
@@ -119,3 +168,5 @@ make test
 # Development mode
 go run . <args>
 ```
+---
+
