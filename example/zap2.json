@@ -1,0 +1,41 @@
+{
+  "name": "API Benchmark Test",
+  "port": 8000,
+  "auth": {
+    "Authorization": "Bearer xxx"
+  },
+  "apis": [
+    {
+      "path": "GET /",
+      "protected": false
+    },
+    {
+      "path": "GET /small",
+      "protected": false
+    },
+    {
+      "path": "GET /large",
+      "protected": false
+    },
+    {
+      "path": "GET /huge",
+      "protected": false
+    },
+    {
+      "path": "GET /json",
+      "protected": false
+    },
+    {
+      "path": "GET /json/large",
+      "protected": false
+    },
+    {
+      "path": "GET /slow",
+      "protected": false
+    },
+    {
+      "path": "GET /gzip",
+      "protected": false
+    }
+  ]
+}

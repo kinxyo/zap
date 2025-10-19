@@ -1,8 +1,18 @@
 {
   "name": "API Benchmark Test",
-  "port": 443,
-  "auth": null,
+  "port": 8000,
+  "auth": {
+    "Authorization": "Bearer xxx"
+  },
   "apis": [
+    {
+      "path": "GET /",
+      "protected": false
+    },
+    {
+      "path": "POST /api/users",
+      "protected": true
+    },
     {
       "path": "GET https://jsonplaceholder.typicode.com/posts/1",
       "protected": false

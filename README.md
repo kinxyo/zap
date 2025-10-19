@@ -93,28 +93,17 @@ zap --help
 
 Create a `config.json` to define reusable API collections:
 
-```json
-{
-  "name": "Example",
-  "port": 8000,
-  "auth": {
-    "Authorization": "Bearer xxx"
-  },
-  "apis": [
-    {
-      "path": "GET /",
-      "protected": false,
-      "headers": {
-        "Content-Type": "text/plain"
-      }
-    },
-    {
-      "path": "POST /api/users",
-      "protected": true
-    }
-  ]
-}
+```zap
+@baseURL https://api.example.com
+@auth Bearer xxx
 
+GET /users
+  expect status 200
+  expect json.length > 0
+
+POST /users
+  body { "name": "test" }
+  expect status 201
 ```
 
 ## Usage Modes
