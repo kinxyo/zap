@@ -3,21 +3,18 @@ package network
 import (
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
-func CURL(method Method, url URL, headers *Headers) (*Result, error) {
-	start := time.Now() // -- STARTS
+func CURL(method Method, url URL, payload *Payload) (*Result, error) {
 
-	req, err := http.NewRequest(string(method), string(url), nil)
+	start := time.Now() // -- STARTS
+	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	p := strings.NewReader(string(*payload))
+	req, err := http.NewRequest(string(method), string(url), p)
 	if err != nil {
 		return nil, err
-	}
-
-	if headers != nil {
-		for key, value := range *headers {
-			req.Header.Set(key, value)
-		}
 	}
 
 	resp, err := (&http.Client{}).Do(req)
@@ -25,7 +22,7 @@ func CURL(method Method, url URL, headers *Headers) (*Result, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
+	// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	elapsed := time.Since(start) // -- ENDS
 
 	body, err := io.ReadAll(resp.Body)
@@ -36,3 +33,11 @@ func CURL(method Method, url URL, headers *Headers) (*Result, error) {
 	result := CreateResult(&method, &url, resp, &body, elapsed.Seconds())
 	return result, nil
 }
+
+// func setHeaders(req *http.Request, h *Headers) {
+// 	if h != nil {
+// 		for key, value := range *h {
+// 			req.Header.Set(key, value)
+// 		}
+// 	}
+// }

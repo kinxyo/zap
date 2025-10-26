@@ -19,7 +19,7 @@ import (
 //                         $$ |
 //                         \__|
 //
-//        ⚡Version 0.5 ⚡
+//        ⚡Version 0.6 ⚡
 //
 //  ========================================================================================
 
@@ -42,30 +42,3 @@ func main() {
 	// Anything else (No arg case already handled!)
 	cli.Run(args, flags)
 }
-
-/*
-
-TODO:
-
-	0) DONE
-	if url provides https or http, use it.
-
-	1) DONE
-	stderr metadata and logs
-	stdout body response
-
-	2) DONE
-	use json.Valid instead of checking header.
-	add a flag for non-pretty-json
-
-	3)
-	add payload for post in cli
-	while you're at it, add headers for requests in cli
-
-	4)
-	finish file parser OR tui
-
-	5)
-	whichever if left
-
-*/

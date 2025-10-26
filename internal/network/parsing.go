@@ -6,6 +6,24 @@ import (
 	"zap/internal/utils/terminal"
 )
 
+func ParsePayload(m *Method, args []string) Payload {
+	if len(args) < 3 {
+		return ""
+	}
+
+	if *m == "GET" {
+		return ""
+	}
+
+	var p []byte = []byte(args[2])
+
+	if p[0] != '{' || p[len(p)-1] != '}' {
+		terminal.Fatal("Invalid Payload")
+	}
+
+	return Payload(args[2])
+}
+
 func ParseMethod(m string) Method {
 	m = strings.ToLower(m)
 	m = strings.TrimSpace(m)

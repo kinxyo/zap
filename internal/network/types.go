@@ -6,6 +6,7 @@ import (
 
 type Method string
 type URL string
+type Payload string
 
 type Headers map[string]string
 

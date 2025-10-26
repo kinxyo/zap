@@ -11,8 +11,9 @@ func Run(args []string, flags *terminal.Flags) {
 
 	var method network.Method = network.ParseMethod(m)
 	var url network.URL = network.ParseURL(p, *flags.ForceHttp)
+	var payload network.Payload = network.ParsePayload(&method, args)
 
-	res, err := network.CURL(method, url, nil)
+	res, err := network.CURL(method, url, &payload)
 	if err != nil {
 		terminal.Fatal("%s\n", err)
 	}
