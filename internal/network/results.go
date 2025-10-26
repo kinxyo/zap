@@ -1,51 +1,51 @@
 package network
 
 import (
+	"encoding/json"
 	"net/http"
 	"zap/internal/utils/terminal"
 )
 
-/* METHOD */
-
-// ???
-
-/* UTIL */
-
-func PrintResult(
-	method *Method,
-	url *URL,
-	resp *http.Response,
-	body *[]byte,
-	time float64,
-	verbose *bool,
-) {
-	terminal.Clear()
-	terminal.PrintFC(terminal.TextBold, "%s %s\n", *method, *url)
-	terminal.PrintF("\t↳ ")
-
-	statusColor := getStatusColor(resp.StatusCode)
-
-	terminal.PrintFC(statusColor, "%s", resp.Status)
-	terminal.PrintFC(terminal.TextBold, " | ")
-	terminal.PrintFC(terminal.TextDim, "%vs\n", time)
-
-	if *verbose {
-
-		if resp.Header.Get("Content-Type") == "application/json" {
-			if len(*body) == 0 {
-				terminal.PrintF("\t↳ ")
-				terminal.PrintF("(empty response)\n")
-				return
-			}
-
-			terminal.PrintFC(terminal.TextBlue, "\nOutput:\n")
-			terminal.PrintJSON(*body)
-		} else {
-			terminal.PrintF("\t↳ ")
-			terminal.PrintF("%s\n", string(*body))
-		}
+func CreateResult(
+	Method *Method,
+	Url *URL,
+	Resp *http.Response,
+	Body *[]byte,
+	Time float64,
+) *Result {
+	return &Result{
+		Method,
+		Url,
+		Resp,
+		Body,
+		Time,
 	}
 }
+
+/* METHODS */
+
+func (r *Result) Print(printTime bool, printURL bool, printStatus bool, noFormat bool) {
+	if printURL {
+		terminal.LogFC(terminal.TextBold, "%s %s\n", *r.Method, *r.URL)
+	}
+
+	if printTime {
+		terminal.LogFC(terminal.TextDim, "Time: %vs\n", r.Time)
+	}
+
+	if printStatus {
+		statusColor := getStatusColor(r.Resp.StatusCode)
+		terminal.LogFC(statusColor, "%s\n", r.Resp.Status)
+	}
+
+	if noFormat {
+		terminal.Print(string(*(r.Body)))
+	} else {
+		printBody(r.Body)
+	}
+}
+
+/* HELPERS */
 
 func getStatusColor(statusCode int) terminal.TextFmt {
 	switch {
@@ -59,5 +59,14 @@ func getStatusColor(statusCode int) terminal.TextFmt {
 		return terminal.TextRed
 	default:
 		return terminal.Reset
+	}
+}
+
+func printBody(body *[]byte) {
+	if json.Valid(*body) {
+		terminal.Log()
+		terminal.PrintJSON(*body)
+	} else {
+		terminal.PrintF("%s\n", string(*body))
 	}
 }

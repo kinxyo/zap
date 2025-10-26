@@ -6,13 +6,12 @@ import (
 	"time"
 )
 
-func Curl(method Method, url URL, headers *Headers, verbose bool) error {
-
+func CURL(method Method, url URL, headers *Headers) (*Result, error) {
 	start := time.Now() // -- STARTS
 
 	req, err := http.NewRequest(string(method), string(url), nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if headers != nil {
@@ -23,7 +22,7 @@ func Curl(method Method, url URL, headers *Headers, verbose bool) error {
 
 	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -31,9 +30,9 @@ func Curl(method Method, url URL, headers *Headers, verbose bool) error {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	PrintResult(&method, &url, resp, &body, elapsed.Seconds(), &verbose)
-	return nil
+	result := CreateResult(&method, &url, resp, &body, elapsed.Seconds())
+	return result, nil
 }

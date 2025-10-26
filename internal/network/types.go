@@ -2,7 +2,6 @@ package network
 
 import (
 	"net/http"
-	"time"
 )
 
 type Method string
@@ -23,9 +22,9 @@ type API struct {
 }
 
 type Result struct {
-	Method Method
-	URL    URL
-	Status string
-	Body   string
-	Time   time.Duration
+	Method *Method
+	URL    *URL
+	Resp   *http.Response
+	Body   *[]byte
+	Time   float64
 }

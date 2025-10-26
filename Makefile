@@ -1,5 +1,5 @@
 install:
-	go build -o zap .
+	go build -o zap ./cmd/app/main.go
 	mkdir -p ~/bin
 	rm -f ~/bin/zap
 	mv ./zap ~/bin/
