@@ -1,3 +1,0 @@
-package tui
-
-func Run() {}

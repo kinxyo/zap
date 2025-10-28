@@ -1,10 +1,10 @@
 package main
 
 import (
-	"zap/modes/cli"
-	"zap/modes/config"
-	"zap/modes/tui"
-	"zap/pkg/terminal"
+	"zap/internal/cli"
+	"zap/internal/file"
+	"zap/internal/tui"
+	"zap/internal/utils/terminal"
 )
 
 //  ========================================================================================
@@ -19,11 +19,7 @@ import (
 //                         $$ |
 //                         \__|
 //
-//        ⚡Version 0.3 ⚡
-//
-// Description: A high-performance API testing tool and `curl` replacement built for speed and simplicity.
-// Issues & Contributions: https://github.com/kinxyo/zap
-// Contact: Kinjalk Tripathi (amblers26.splay@icloud.com)
+//        ⚡Version 0.6 ⚡
 //
 //  ========================================================================================
 
@@ -31,17 +27,23 @@ func main() {
 	flags := terminal.LoadFlags()
 	args := terminal.LoadArgs()
 
-	if len(args) <= 0 {
-		terminal.Err("No args provided.")
+	// No args
+	if len(args) == 0 {
+		tui.Run()
 		return
 	}
 
-	switch args[0] {
-	case "tui":
-		tui.Run()
-	case "run":
-		config.Run(args, flags.Config)
-	default:
-		cli.Run(args, flags.Args)
+	// 1st arg "run"
+	if args[0] == "run" {
+		file.Run(args, flags)
+		return
 	}
+
+	if args[0] == "version" || args[0] == "v" {
+		terminal.Print("zap -- v0.5")
+		return
+	}
+
+	// Anything else (No arg case already handled!)
+	cli.Run(args, flags)
 }

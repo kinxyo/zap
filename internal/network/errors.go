@@ -1,8 +1,6 @@
 package network
 
-const (
-	INVALID_METHOD string = "INVALID_METHOD"
-)
+const ERR_INVALID_METHOD string = "INVALID_METHOD"
 
 type NetworkError struct {
 	Message string
