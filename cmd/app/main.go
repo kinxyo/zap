@@ -39,6 +39,11 @@ func main() {
 		return
 	}
 
+	if args[0] == "version" || args[0] == "v" {
+		terminal.Print("zap -- v0.5")
+		return
+	}
+
 	// Anything else (No arg case already handled!)
 	cli.Run(args, flags)
 }
