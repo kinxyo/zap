@@ -9,26 +9,26 @@ pub fn run(allocator: std.mem.Allocator, second_arg: ?[]const u8) void {
     const MAX_FILE_SIZE: usize = 1 * 1024 * 1024;
     const content = std.fs.cwd().readFileAlloc(allocator, FILE, MAX_FILE_SIZE) catch |err| switch (err) {
         error.FileTooBig => {
-            fmt.fatal("File cannot be bigger than 1 MB.", .{});
+            fmt.fatal("File cannot be bigger than 1 MB.\n", .{});
             return;
         },
         error.FileNotFound => {
-            fmt.fatal("No such file exists: `{s}`.", .{FILE});
+            fmt.fatal("No such file exists: `{s}`.\n", .{FILE});
             return;
         },
         else => {
-            fmt.fatal("Failed to read `{s}`: {}", .{ FILE, err });
+            fmt.fatal("Failed to read `{s}`: {}\n", .{ FILE, err });
             return;
         },
     };
 
     const parsed: std.json.Parsed(Http.Collection) = std.json.parseFromSlice(Http.Collection, allocator, content, .{}) catch |err| switch (err) {
         error.UnexpectedToken => {
-            fmt.fatal("Wrong syntax.", .{});
+            fmt.fatal("Wrong syntax.\n", .{});
             return;
         },
         else => {
-            fmt.fatal("Failed to parse `{s}`: {}", .{ FILE, err });
+            fmt.fatal("Failed to parse `{s}`: {}\n", .{ FILE, err });
             return;
         },
     };
