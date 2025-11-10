@@ -57,7 +57,8 @@ pub fn main() void {
 
 fn command_run(alloc: std.mem.Allocator, first_arg: []const u8, iter: *std.process.ArgIterator, flags: *Flag.Type) void {
     if (std.mem.eql(u8, first_arg, "run")) {
-        FILE.run(alloc, flags);
+        const second_arg = iter.next();
+        FILE.run(alloc, second_arg);
         return;
     } else {
         const second_arg = iter.next();

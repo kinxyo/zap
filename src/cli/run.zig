@@ -20,7 +20,7 @@ pub fn run(alloc: std.mem.Allocator, first_value: []const u8, second_arg: ?[]con
         r_path = first_value;
     }
 
-    const method = core.parseMethod(alloc, r_method) catch |err| switch (err) {
+    const method = Http.parseMethod(alloc, r_method) catch |err| switch (err) {
         error.InvalidMethod => {
             fmt.fatal("Wrong Method: use \"get\",\"post\",\"put\",\"delete\"\n", .{});
             return;
@@ -31,16 +31,12 @@ pub fn run(alloc: std.mem.Allocator, first_value: []const u8, second_arg: ?[]con
         },
     };
 
-    const url = core.makeURL(alloc, r_path) catch |err| {
+    const url = Http.parseUrl(alloc, r_path, null) catch |err| {
         fmt.fatal("Failed to prepare path: {any}\n", .{err});
         return;
     };
 
-    const uri = std.Uri.parse(url) catch |err| {
-        fmt.fatal("Failed to parse path: {any}\n", .{err});
-        return;
-    };
-    const result = Http.curl(alloc, method, uri, third_arg);
+    const result = Http.curl(alloc, method, url, third_arg, .empty);
 
     const verbose: bool = flags.getPtr("v").?.*;
 

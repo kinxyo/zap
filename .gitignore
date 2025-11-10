@@ -1,3 +1,5 @@
 benchmarks.md
 zig-out
 .zig-cache
+output.json
+heavy_test.json
