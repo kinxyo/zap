@@ -1,7 +1,5 @@
 const std = @import("std");
 
-pub const Types = @import("http_types.zig");
-
 const fmt = @import("fmt.zig");
 const Cli = std.http.Client;
 
@@ -36,9 +34,9 @@ pub fn parseMethod(alloc: std.mem.Allocator, value: []const u8) !std.http.Method
 
 pub fn parseUrl(alloc: std.mem.Allocator, path: []const u8, baseUrl: ?[]const u8) ![]const u8 {
     // Example:
-    // 1. zap /api/users (local)
-    // 2. zap httpbin.org/json (global)
-    // 3. zap -d httpbin.org/json (global without https)
+    // 1. zz /api/users (local)
+    // 2. zz httpbin.org/json (global)
+    // 3. zz -d httpbin.org/json (global without https)
 
     // FOR FILE
     if (baseUrl) |v| {
@@ -64,6 +62,11 @@ pub fn parseUrl(alloc: std.mem.Allocator, path: []const u8, baseUrl: ?[]const u8
 pub fn curl(alloc: std.mem.Allocator, method: std.http.Method, url: []const u8, payload: ?[]const u8, headers: std.ArrayList(std.http.Header)) Cli.FetchResult {
     var c: Cli = .{ .allocator = alloc };
 
+    if (method.requestHasBody() and payload == null) {
+        fmt.err("Please provide a payload (3rd argument).\n", .{});
+        return std.http.Client.FetchResult{ .status = std.http.Status.internal_server_error };
+    }
+
     const options: Cli.FetchOptions = .{
         .method = method,
         .location = .{ .url = url },
@@ -74,7 +77,7 @@ pub fn curl(alloc: std.mem.Allocator, method: std.http.Method, url: []const u8, 
 
     const result = c.fetch(options) catch |err| {
         fmt.fatal("Failed curl: {any}", .{err});
-        unreachable;
+        return std.http.Client.FetchResult{ .status = std.http.Status.internal_server_error };
     };
 
     fmt.flush();

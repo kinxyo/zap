@@ -1,1 +1,1 @@
-Zap :lighting:
+zigzag

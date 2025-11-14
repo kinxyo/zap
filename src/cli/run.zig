@@ -1,21 +1,25 @@
 const std = @import("std");
 
-const core = @import("core.zig");
-
 const fmt = @import("shared").fmt;
 const Flag = @import("shared").Flag;
 const Http = @import("shared").Http;
 
-pub fn run(alloc: std.mem.Allocator, first_value: []const u8, second_arg: ?[]const u8, third_arg: ?[]const u8, flags: *const Flag.Type) void {
+pub fn run(
+    alloc: std.mem.Allocator,
+    first_value: []const u8,
+    second_arg: ?[]const u8,
+    third_arg: ?[]const u8,
+    flags: *const Flag.Type,
+) void {
     var r_method: []const u8 = undefined;
     var r_path: []const u8 = undefined;
 
     if (second_arg) |value| {
-        // zap <url>
+        // zz <url>
         r_method = first_value;
         r_path = value;
     } else {
-        // zap <method> <url>
+        // zz <method> <url>
         r_method = "get";
         r_path = first_value;
     }

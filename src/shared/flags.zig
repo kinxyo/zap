@@ -9,6 +9,7 @@ pub fn init(allocator: std.mem.Allocator) Type {
     var f: Type = .init(allocator);
 
     f.put("v", false) catch unreachable; // verbose
+    f.put("h", false) catch unreachable; // force http
 
     return f;
 }

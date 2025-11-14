@@ -1,8 +1,8 @@
 @baseURL https://api.example.com
 
 #body {
-    email: $env.ZAP_EMAIL
-    password: $env.ZAP_PSWD
+    email: $env.ZZ_EMAIL
+    password: $env.ZZ_PSWD
 }
 
 @auth {
