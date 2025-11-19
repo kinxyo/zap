@@ -17,6 +17,10 @@ const stderr: *std.Io.Writer = &stderr_writer.interface;
 
 // _____ helpers _____
 
+pub fn clear() void {
+    stdout.writeAll("\x1b[2J\x1b[H") catch unreachable;
+}
+
 pub fn writer() *std.Io.Writer {
     return stdout;
 }

@@ -1,15 +1,16 @@
 const std = @import("std");
+const shared = @import("shared");
 
-const fmt = @import("shared").fmt;
-const Flag = @import("shared").Flag;
-const Http = @import("shared").Http;
+const fmt = shared.fmt;
+const Flag = shared.Flag;
+const Http = shared.Http;
 
 pub fn run(
     alloc: std.mem.Allocator,
     first_value: []const u8,
     second_arg: ?[]const u8,
     third_arg: ?[]const u8,
-    flags: *const Flag.Type,
+    flags: Flag,
 ) void {
     var r_method: []const u8 = undefined;
     var r_path: []const u8 = undefined;
@@ -42,9 +43,7 @@ pub fn run(
 
     const result = Http.curl(alloc, method, url, third_arg, .empty);
 
-    const verbose: bool = flags.getPtr("v").?.*;
-
-    if (verbose) {
+    if (flags.verbose) {
         fmt.logColored("\n{s} {s}\n", .{ @tagName(method), url }, .bold);
         if (result.status == .accepted or result.status == .created or result.status == .ok) {
             fmt.logColored("{s}\n", .{@tagName(result.status)}, .green);
