@@ -1,51 +1,31 @@
 const std = @import("std");
-const fmt = @import("shared").fmt;
-const eql = std.mem.eql;
-
-// Orginal Terminal (Mode)
-var org_term: std.posix.termios = undefined;
-
-fn enableRawMode(hn: std.fs.File.Handle) !void {
-    org_term = try std.posix.tcgetattr(hn);
-
-    var raw = org_term;
-    raw.lflag.ECHO = false;
-    raw.lflag.ICANON = false;
-
-    try std.posix.tcsetattr(hn, .FLUSH, raw);
-}
-
-fn disableRawMode(hn: std.fs.File.Handle) void {
-    std.posix.tcsetattr(hn, .FLUSH, org_term) catch |err| {
-        fmt.err("Failed to dial back terminal: {}\n", .{err});
-        return;
-    };
-}
+const utils = @import("shared");
+const tui = @import("tuilip");
 
 pub fn run() !void {
-    var buf: [4096]u8 = undefined;
-    var reader: std.fs.File.Reader = std.fs.File.stdin().reader(&buf);
-    const handler = reader.file.handle;
-    var stdin: *std.Io.Reader = &reader.interface;
+    var buf_r: [4 * 1024]u8 = undefined;
+    var reader = std.fs.File.stdin().reader(&buf_r);
+    const stdin: *std.Io.Reader = &reader.interface;
 
-    try enableRawMode(handler);
-    defer disableRawMode(handler);
+    var app_fmt: tui.Fmt = .{
+        .writer = utils.fmt.writer(),
+        .reader = stdin,
+        .handle = reader.file.handle,
+    };
 
-    var key: u8 = ' ';
+    var cv = tui.Canvas.init(&app_fmt) catch |err| {
+        std.log.err("Failed to initialize the canvas: {s}\n", .{@errorName(err)});
+        return;
+    };
 
-    while (true) {
-        // Clear
-        fmt.clear();
+    cv.fmt.clear();
+    cv.fmt.cursor_hide();
+    defer cv.fmt.cursor_show();
 
-        // Draw
-        fmt.output("Key pressed: {c}\n", .{key});
-        fmt.flush();
-
-        // Poll for events (input).
-        key = try stdin.takeByte();
-        if (key == 'q') break;
+    for (0..3) |_| {
+        try tui.animations.slidingX(&cv, 1, 5, cv.width, 2, "===", 31);
+        try tui.animations.slidingY(&cv, 5, 1, cv.height, 2, "|||", 34);
     }
 
-    fmt.clear();
-    fmt.flush();
+    cv.fmt.clear();
 }

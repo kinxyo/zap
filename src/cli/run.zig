@@ -11,7 +11,7 @@ pub fn run(
     second_arg: ?[]const u8,
     third_arg: ?[]const u8,
     flags: Flag,
-) void {
+) !void {
     var r_method: []const u8 = undefined;
     var r_path: []const u8 = undefined;
 
@@ -41,7 +41,27 @@ pub fn run(
         return;
     };
 
-    const result = Http.curl(alloc, method, url, third_arg, .empty);
+    var result: std.http.Client.FetchResult = undefined;
+    var header: std.ArrayList(std.http.Header) = try .initCapacity(alloc, 4096);
+    defer header.deinit(alloc);
+    if (flags.header) |header_value| {
+        const ParseType = std.json.Value;
+        const parsed: std.json.Parsed(ParseType) = std.json.parseFromSlice(ParseType, alloc, header_value, .{}) catch |err| {
+            fmt.fatal("Parsing header failed: {s}\n", .{@errorName(err)});
+            return;
+        };
+        defer parsed.deinit();
+
+        var iter = parsed.value.object.iterator();
+
+        while (iter.next()) |m| {
+            try header.append(alloc, .{ .name = m.key_ptr.*, .value = m.value_ptr.*.string });
+        }
+
+        result = Http.curl(alloc, method, url, third_arg, header);
+    } else {
+        result = Http.curl(alloc, method, url, third_arg, .empty);
+    }
 
     if (flags.verbose) {
         fmt.logColored("\n{s} {s}\n", .{ @tagName(method), url }, .bold);

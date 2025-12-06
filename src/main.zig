@@ -45,7 +45,12 @@ pub fn main() void {
     while (iter.next()) |current_value| {
         // Collect flags (to be provided before the command)
         if (current_value[0] == '-') {
-            flags.parse(current_value);
+            if (std.mem.eql(u8, current_value, "-h")) {
+                const header = iter.next();
+                flags.setHeader(header);
+            } else {
+                flags.parse(current_value);
+            }
         } else {
             // Run FILE or CLI (based on first non-flag token)
             if (std.mem.eql(u8, current_value, "run")) {
@@ -55,7 +60,10 @@ pub fn main() void {
             } else {
                 const second_arg = iter.next();
                 const third_arg = iter.next();
-                CLI.run(allocator, current_value, second_arg, third_arg, flags);
+                CLI.run(allocator, current_value, second_arg, third_arg, flags) catch |err| {
+                    std.log.err("CLI Failed: {}\n", .{err});
+                    return;
+                };
                 return;
             }
         }
@@ -73,4 +81,4 @@ pub fn main() void {
 // 1. set a proper convention for library namespace, file namespace and local function, file namespace and local function.
 // 2. headers printing for verbose.
 // 3. remove internal error for api tester error
-// 4. add option to include header in req via cli.
+// 4. add option to include header in req via cli. 🗸

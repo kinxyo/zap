@@ -20,7 +20,12 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
-    // exe.linkLibC();
+    const tuilip = b.dependency("tuilip", .{
+        .target = target,
+        .optimize = optimize,
+    }).module("tuilip");
+
+    exe.root_module.addImport("tuilip", tuilip);
     b.installArtifact(exe);
 
     const run_step = b.step("run", "Run the app");
